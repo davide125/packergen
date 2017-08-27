@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+  <settings pass="windowsPE">
+    <component name="Microsoft-Windows-PnpCustomizationsWinPE" processorArchitecture="{{ arch }}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <DriverPaths>
+      {% for path in driver_paths %}
+        <PathAndCredentials wcm:action="add" wcm:keyValue="1">
+          <Path>{{ path }}</Path>
+        </PathAndCredentials>
+      {% endfor %}
+      </DriverPaths>
+    </component>
+    <component name="Microsoft-Windows-Setup" processorArchitecture="{{ arch }}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <DiskConfiguration>
+        <WillShowUI>Never</WillShowUI>
+        <Disk wcm:action="add">
+          <DiskID>0</DiskID>
+          <WillWipeDisk>true</WillWipeDisk>
+          <CreatePartitions>
+          {% for p in partitions %}
+            <CreatePartition wcm:action="add">
+              <Order>{{ loop.index }}</Order>
+            {% if p.type is defined %}
+              <Type>{{ p.type }}</Type>
+            {% else %}
+              <Type>Primary</Type>            
+            {% endif %}
+            {% if p.size is defined %}
+              <Size>{{ p.size }}</Size>
+            {% else %}
+              <Extend>true</Extend>
+            {% endif %}            
+            </CreatePartition>
+          {% endfor %}
+          </CreatePartitions>
+
+          <ModifyPartitions>
+          {% for p in partitions %}
+            <ModifyPartition wcm:action="add">
+              <Order>{{ loop.index }}</Order>
+              <PartitionID>{{ loop.index }}</PartitionID>
+            {% if p.label is defined %}
+              <Label>{{ p.label }}</Label>
+            {% endif %}
+            {% if p.letter is defined %}
+              <Letter>{{ p.letter }}</Letter>
+            {% endif %}
+            {% if p.format is defined %}
+              <Format>{{ p.format }}</Format>
+            {% endif %}
+            {% if p.type_id is defined %}
+              <TypeID>{{ p.type_id }}</TypeID>
+            {% endif %}
+            </ModifyPartition>
+          {% endfor %}
+          </ModifyPartitions>
+        </Disk>
+      </DiskConfiguration>
+      <ImageInstall>
+        <OSImage>
+          <InstallFrom>
+            <MetaData wcm:action="add">
+            {% if image_name is defined %}
+              <Key>/IMAGE/NAME</Key>
+              <Value>{{ image_name }}</Value>
+            {% else %}
+              <Key>/IMAGE/INDEX</Key>
+              <Value>{{ image_index }}</Value>
+            {% endif %}
+            </MetaData>
+          </InstallFrom>
+          <InstallTo>
+            <DiskID>0</DiskID>
+            <PartitionID>4</PartitionID>
+          </InstallTo>
+          <WillShowUI>Never</WillShowUI>
+        </OSImage>
+      </ImageInstall>
+      <UserData>
+        <AcceptEula>true</AcceptEula>
+        <ProductKey>
+        {% if install_key is defined %}
+          <Key>{{ install_key }}</Key>
+        {% endif %}
+          <WillShowUI>Never</WillShowUI>
+        </ProductKey>
+      </UserData>
+    </component>
+    <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="{{ arch }}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <SetupUILanguage>
+        <UILanguage>{{ language }}</UILanguage>
+      </SetupUILanguage>
+      <SystemLocale>{{ language }}</SystemLocale>
+      <UILanguage>{{ language }}</UILanguage>
+      <UserLocale>{{ language }}</UserLocale>
+    </component>
+  </settings>
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="{{ arch }}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <UserAccounts>
+        <AdministratorPassword>
+          <Value>{{ users.Administrator.password }}</Value>
+          <PlainText>true</PlainText>
+        </AdministratorPassword>
+      </UserAccounts>
+    {% if autologon is defined %}
+      <AutoLogon>
+        <Password>
+          <Value>{{ users[autologon]['password'] }}</Value>
+          <PlainText>true</PlainText>
+        </Password>
+        <Enabled>true</Enabled>
+        <LogonCount>5</LogonCount>
+        <Username>{{ autologon }}</Username>
+      </AutoLogon>
+    {% endif %}
+      <RegisteredOwner/>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <ProtectYourPC>3</ProtectYourPC>
+      </OOBE>
+      <FirstLogonCommands>
+      {% for command in first_logon_commands %}
+        <SynchronousCommand wcm:action="add">
+          <Order>{{ loop.index }}</Order>
+          <Description>Command {{ loop.index }}</Description>
+          <CommandLine>{{ command }}</CommandLine>
+        </SynchronousCommand>
+      {% endfor %}
+      </FirstLogonCommands>
+    </component>
+  </settings>
+  <settings pass="specialize">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="{{ arch }}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    {% if activation_key is defined %}
+      <ProductKey>{{ activation_key }}</ProductKey>
+    {% endif %}     
+    </component>
+  </settings>
+</unattend>
