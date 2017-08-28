@@ -8,7 +8,7 @@ from datetime import datetime
 from packergen.preparers.file import File
 from packergen.preparers.iso import ISO
 from packergen.preparers.template import Template
-from packergen.preparers.virtio import VirtioWinDrivers
+from packergen.preparers.virtio import VirtioWinDrivers, VirtioWinFloppy, VirtioWinISO
 from packergen.preparers.windows_answer_file import WindowsAnswerFile
 from packergen.utils import make_autovivified_dict, merge_dict
 

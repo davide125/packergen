@@ -8,12 +8,15 @@ config['preparers'] = [
     source='http://care.dlservice.microsoft.com/dl/download/1/6/F/16FA20E6-4662-482A-920B-1A45CF5AAE3C/14393.0.160715-1616.RS1_RELEASE_SERVER_EVAL_X64FRE_EN-US.ISO',
     checksum='e634269ef78f1181859f88708c6d03c12a250f4b66d8cbd3de2e3c18da1f96ff',
   ),
-  VirtioWinDrivers(
-    os='Win2016',
+  #VirtioWinDrivers(
+  #  os='Win2016',
+  #),
+  #VirtioWinFloppy(),
+  VirtioWinISO(
+    os='2k16',
   ),
   WindowsAnswerFile(
     params={
-      'driver_paths': ['A:\\'],
       'image_name': 'Windows Server 2016 SERVERSTANDARDCORE',
       'first_logon_commands': [
         # install chololatey and win32-openssh
